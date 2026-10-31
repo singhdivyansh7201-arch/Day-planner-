@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Day Planner</title>
+<meta name="author" content="Divyansh Singh">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d9480f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Day Planner">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#eef1f6;--card:#ffffff;--ink:#17202e;--mute:#5b6878;--line:#c5cedb;--accent:#d9480f;--on:#fff;--op:88%;--must:#c92a2a;--can:#2b8a3e;--dont:#6741d9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141c;--card:#18202b;--ink:#e8edf4;--mute:#9aa7b6;--line:#34414f;--on:#0f141c;--must:#ff8787;--can:#69db7c;--dont:#b197fc}}
+:root[data-theme="dark"]{--bg:#0f141c;--card:#18202b;--ink:#e8edf4;--mute:#9aa7b6;--line:#34414f;--on:#0f141c;--must:#ff8787;--can:#69db7c;--dont:#b197fc}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:400 15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg) center/cover fixed no-repeat;min-height:100vh}
+h1,h2,h3{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:color-mix(in srgb,var(--card) var(--op),transparent);border:1px solid var(--line);border-radius:14px;padding:14px;backdrop-filter:blur(6px)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--on);font-weight:600}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text],textarea{width:100%;background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+textarea{min-height:70px;resize:vertical}
+.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
+.top h1{font-size:clamp(26px,5vw,40px);line-height:1.1}
+.fest{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--accent);color:var(--on);border-radius:99px;padding:2px 10px;font-size:13px;font-weight:600}
+.chip.none{background:transparent;color:var(--mute);border:1px dashed var(--line);font-weight:400}
+.layout{display:grid;grid-template-columns:290px 1fr;gap:14px;align-items:start}
+.cal .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.grid b{font-size:12px;color:var(--mute);font-weight:600}
+.grid button{aspect-ratio:1;padding:0;position:relative;border-color:transparent;font-size:14px}
+.grid button.today{border-color:var(--ink)}
+.grid button.sel{background:var(--accent);color:var(--on);border-color:var(--accent)}
+.grid button i{position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2px;border-radius:50%;background:var(--accent)}
+.grid button.sel i{background:var(--on)}
+.grid button u{position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--can);text-decoration:none}
+.legend{font-size:12px;color:var(--mute);margin:8px 0}
+.flist{margin:6px 0 0;padding:0;list-style:none;font-size:13px;max-height:170px;overflow:auto}
+.flist li{display:flex;gap:8px;padding:3px 0;border-top:1px solid var(--line);cursor:pointer}
+.flist li span:first-child{min-width:46px;color:var(--mute)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.col h2{font-size:17px;margin-bottom:2px}
+.col p{margin:0 0 8px;font-size:13px;color:var(--mute)}
+.col.must{border-top:4px solid var(--must)}.col.can{border-top:4px solid var(--can)}.col.dont{border-top:4px solid var(--dont)}
+.items{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}
+.items li{display:flex;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.items li.done span{text-decoration:line-through;color:var(--mute)}
+.items li span{flex:1;overflow-wrap:anywhere}
+.items input{width:18px;height:18px;accent-color:var(--accent)}
+.items button{padding:0 7px;border:0;color:var(--mute);font-size:18px;line-height:1.2}
+.add{display:flex;gap:6px}
+.rev{margin-top:12px}
+.rev .stats{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.stat{flex:1;min-width:120px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.stat b{display:block;font:700 22px system-ui,sans-serif}
+.stars{display:flex;gap:4px;margin:6px 0}
+.stars button{font-size:20px;border:0;padding:0 3px;color:var(--line)}
+.stars button.on{color:var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+select{background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+label{display:block;font-size:13px;color:var(--mute);margin:8px 0 4px}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:600}
+.sw{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.sw button{width:42px;height:42px;border-radius:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.charts{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:10px}
+.charts h3{font-size:14px;margin-bottom:4px}
+.insight{margin:6px 0;font-weight:600}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.cols,.two,.charts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 id="dateTitle"></h1>
+      <div class="fest" id="dayFest"></div>
+    </div>
+    <div class="row" style="margin:0">
+      <button id="prev" type="button">Previous day</button>
+      <button id="today" type="button">Today</button>
+      <button id="next" type="button" class="pri">Next day</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card cal">
+        <div class="head"><button id="pm" type="button" aria-label="Previous month">&lt;</button><h3 id="monthTitle"></h3><button id="nm" type="button" aria-label="Next month">&gt;</button></div>
+        <div class="grid" id="grid"></div>
+        <p class="legend">Orange dot: festival. Green dot: day has a saved plan.</p>
+        <ul class="flist" id="monthFest"></ul>
+      </div>
+      <details class="card" style="margin-top:12px">
+        <summary>Customize look</summary>
+        <label for="wall">Wallpaper image</label>
+        <input type="file" id="wall" accept="image/*">
+        <div class="sw" id="sw" aria-label="Preset backgrounds"></div>
+        <div class="row"><label for="acc" style="margin:0">Accent colour</label><input type="color" id="acc" value="#d9480f"></div>
+        <label for="theme">Theme</label>
+        <select id="theme"><option value="auto">Match my phone</option><option value="light">Light</option><option value="dark">Dark</option></select>
+        <label for="op">Card opacity</label>
+        <input type="range" id="op" min="40" max="100" value="88">
+        <div class="row"><button id="rmWall" type="button">Remove wallpaper</button></div>
+        <p class="legend" id="wmsg"></p>
+      </details>
+    </div>
+
+    <div>
+      <div class="cols">
+        <div class="card col must"><h2>Must do</h2><p>Non-negotiable for today</p><ul class="items" id="l-must"></ul><form class="add" data-k="must"><input type="text" aria-label="Add a must do" placeholder="Add a must do"><button class="pri">Add</button></form></div>
+        <div class="card col can"><h2>Can do</h2><p>Nice to have if time allows</p><ul class="items" id="l-can"></ul><form class="add" data-k="can"><input type="text" aria-label="Add a can do" placeholder="Add a can do"><button class="pri">Add</button></form></div>
+        <div class="card col dont"><h2>Don’t do</h2><p>Tick it when you stayed away</p><ul class="items" id="l-dont"></ul><form class="add" data-k="dont"><input type="text" aria-label="Add a don’t do" placeholder="Add a don’t do"><button class="pri">Add</button></form></div>
+      </div>
+      <div class="card rev">
+        <h2>Evening review</h2>
+        <div class="stats" id="stats"></div>
+        <div>How was the day overall?</div>
+        <div class="stars" id="stars"></div>
+        <div style="margin-top:10px">Are you satisfied with today?</div><div class="row" id="sat"></div>
+        <div class="two">
+          <div><label for="good">What went well</label><textarea id="good"></textarea></div>
+          <div><label for="fix">What to fix tomorrow</label><textarea id="fix"></textarea></div>
+        </div>
+        <label for="learn">What did you learn from today?</label><textarea id="learn" placeholder="One lesson you want to remember"></textarea>
+        <div class="row"><button id="carry" type="button">Carry unfinished must dos to next day</button><span class="legend" id="cmsg"></span></div>
+      </div>
+      <div class="card rev">
+        <h2>Productivity trend</h2>
+        <p class="legend">Day score = share of your list done. Must dos count double. Charts end on the day you have open.</p>
+        <div id="insBody"></div>
+      </div>
+    </div>
+  </div>
+  <p class="legend" style="text-align:center;margin:18px 0 6px">Made by Divyansh Singh</p>
+</div>
+<script>
+(function(){
+// Festival dates (India, Drik Panchang based). Add more as "YYYY-MM-DD":["Name"].
+var F={
+"2026-11-06":["Dhanteras"],"2026-11-08":["Diwali (Lakshmi Puja)","Naraka Chaturdashi"],"2026-11-09":["Govardhan Puja"],
+"2026-11-10":["Gujarati New Year"],"2026-11-11":["Bhai Dooj"],"2026-11-15":["Chhath Puja"],"2026-11-16":["Vrishchika Sankranti"],
+"2026-11-20":["Dev Uthani Ekadashi"],"2026-11-21":["Tulsi Vivah"],"2026-11-24":["Kartika Purnima","Dev Diwali"],
+"2026-11-30":["Kalabhairav Jayanti"],"2026-12-04":["Utpanna Ekadashi"],"2026-12-19":["Gita Jayanti","Mokshada Ekadashi"],
+"2026-12-20":["Vaikuntha Ekadashi"],"2026-12-23":["Dattatreya Jayanti"],"2027-01-13":["Lohri"],"2027-01-14":["Makar Sankranti"]
+};
+var MN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var DN=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var KEY="day-planner-v1",SKEY="day-planner-look";
+var D={},L={acc:"#d9480f",op:88,bg:"",img:"",theme:"auto"};
+try{D=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){}
+try{L=Object.assign(L,JSON.parse(localStorage.getItem(SKEY)||"{}"))}catch(e){}
+function saveD(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+function saveL(){try{localStorage.setItem(SKEY,JSON.stringify(L));document.getElementById("wmsg").textContent=""}catch(e){document.getElementById("wmsg").textContent="Image is too large to keep after you close this page. Try a smaller one."}}
+function key(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parse(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function addDays(k,n){var d=parse(k);d.setDate(d.getDate()+n);return key(d)}
+var TODAY=key(new Date()),sel=TODAY,view=parse(TODAY);view.setDate(1);
+function day(k){if(!D[k])D[k]={must:[],can:[],dont:[],rate:0,good:"",fix:""};var d=D[k];if(d.sat==null)d.sat="";if(d.learn==null)d.learn="";return d}
+function mk(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n}
+function $(i){return document.getElementById(i)}
+
+function applyLook(){
+  var r=document.documentElement.style;
+  r.setProperty("--accent",L.acc);r.setProperty("--op",L.op+"%");
+  document.body.style.backgroundImage=L.img?"url("+L.img+")":(L.bg||"");
+  $("acc").value=L.acc;$("op").value=L.op;$("theme").value=L.theme;
+  if(L.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",L.theme);
+  var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute("content",L.acc);
+}
+var PRE=["linear-gradient(135deg,#ffd8a8,#ffa8a8)","linear-gradient(135deg,#a5d8ff,#d0bfff)","linear-gradient(135deg,#b2f2bb,#99e9f2)","linear-gradient(135deg,#1b2735,#3b4b63)","linear-gradient(135deg,#2b1b3d,#7a3b5f)"];
+PRE.forEach(function(g){var b=mk("button");b.type="button";b.style.background=g;b.setAttribute("aria-label","Use this background");b.onclick=function(){L.bg=g;L.img="";saveL();applyLook()};$("sw").appendChild(b)});
+$("acc").oninput=function(e){L.acc=e.target.value;saveL();applyLook()};
+$("theme").onchange=function(e){L.theme=e.target.value;saveL();applyLook()};
+$("op").oninput=function(e){L.op=+e.target.value;saveL();applyLook()};
+$("rmWall").onclick=function(){L.bg="";L.img="";saveL();applyLook()};
+$("wall").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){var im=new Image();im.onload=function(){
+    var s=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");
+    c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+    L.img=c.toDataURL("image/jpeg",.78);L.bg="";saveL();applyLook()};im.src=fr.result};
+  fr.readAsDataURL(f);
+};
+
+function renderHead(){
+  var d=parse(sel);
+  $("dateTitle").textContent=DN[d.getDay()]+", "+d.getDate()+" "+MN[d.getMonth()]+" "+d.getFullYear();
+  var box=$("dayFest");box.textContent="";
+  var f=F[sel];
+  if(f)f.forEach(function(n){box.appendChild(mk("span","chip",n))});
+  else box.appendChild(mk("span","chip none","No festival listed"));
+}
+function renderCal(){
+  var g=$("grid");g.textContent="";
+  $("monthTitle").textContent=MN[view.getMonth()]+" "+view.getFullYear();
+  ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(function(n){g.appendChild(mk("b",null,n))});
+  for(var i=0;i<view.getDay();i++)g.appendChild(mk("span"));
+  var n=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+  for(var x=1;x<=n;x++){
+    var k=key(new Date(view.getFullYear(),view.getMonth(),x)),b=mk("button",null,String(x));b.type="button";
+    if(k===TODAY)b.classList.add("today");if(k===sel)b.classList.add("sel");
+    if(F[k])b.appendChild(mk("i"));
+    var dd=D[k];if(dd&&(dd.must.length+dd.can.length+dd.dont.length>0))b.appendChild(mk("u"));
+    b.setAttribute("aria-label",x+" "+MN[view.getMonth()]+(F[k]?", "+F[k].join(", "):""));
+    (function(kk){b.onclick=function(){sel=kk;render()}})(k);
+    g.appendChild(b);
+  }
+  var ul=$("monthFest");ul.textContent="";var any=false;
+  Object.keys(F).sort().forEach(function(k){
+    var d=parse(k);if(d.getMonth()!==view.getMonth()||d.getFullYear()!==view.getFullYear())return;
+    any=true;var li=mk("li");li.appendChild(mk("span",null,d.getDate()+" "+MN[d.getMonth()].slice(0,3)));li.appendChild(mk("span",null,F[k].join(", ")));
+    li.onclick=function(){sel=k;render()};ul.appendChild(li);
+  });
+  if(!any)ul.appendChild(mk("li",null,"No festivals listed for this month."));
+}
+function renderList(k){
+  var ul=$("l-"+k),d=day(sel);ul.textContent="";
+  d[k].forEach(function(it,i){
+    var li=mk("li",it.d?"done":""),c=mk("input");c.type="checkbox";c.checked=!!it.d;
+    c.setAttribute("aria-label","Mark done");
+    c.onchange=function(){it.d=c.checked;saveD();render()};
+    var x=mk("button",null,"×");x.type="button";x.setAttribute("aria-label","Delete item");
+    x.onclick=function(){d[k].splice(i,1);saveD();render()};
+    li.appendChild(c);li.appendChild(mk("span",null,it.t));li.appendChild(x);ul.appendChild(li);
+  });
+}
+function renderRev(){
+  var d=day(sel),s=$("stats");s.textContent="";
+  function st(label,a){var b=mk("div","stat");b.appendChild(mk("b",null,a.filter(function(x){return x.d}).length+" / "+a.length));b.appendChild(mk("span",null,label));s.appendChild(b)}
+  st("Must dos done",d.must);st("Can dos done",d.can);st("Don’ts kept",d.dont);
+  var st2=$("stars");st2.textContent="";
+  for(var i=1;i<=5;i++){(function(i){var b=mk("button",i<=d.rate?"on":"","★");b.type="button";b.setAttribute("aria-label","Rate "+i+" out of 5");b.onclick=function(){d.rate=d.rate===i?0:i;saveD();renderRev()};st2.appendChild(b)})(i)}
+  $("good").value=d.good;$("fix").value=d.fix;$("learn").value=d.learn;renderSat();renderInsights();
+}
+function renderSat(){
+  var d=day(sel),r=$("sat");r.textContent="";
+  [["yes","Satisfied"],["no","Unsatisfied"]].forEach(function(o){
+    var b=mk("button",d.sat===o[0]?"pri":"",o[1]);b.type="button";b.setAttribute("aria-pressed",d.sat===o[0]?"true":"false");
+    b.onclick=function(){d.sat=d.sat===o[0]?"":o[0];saveD();renderSat();renderInsights()};r.appendChild(b);
+  });
+}
+function dn(a){return a.filter(function(x){return x.d}).length}
+function sc(k){var d=D[k];if(!d)return null;var t=d.must.length*2+d.can.length+d.dont.length;return t?Math.round(100*(dn(d.must)*2+dn(d.can)+dn(d.dont))/t):null}
+function wk(end){var s=[],t=0,sat=0;for(var i=0;i<7;i++){var k=addDays(end,-i),v=sc(k);if(v!=null)s.push(v);if(D[k]){t+=dn(D[k].must)+dn(D[k].can);if(D[k].sat==="yes")sat++}}return{avg:s.length?Math.round(s.reduce(function(a,b){return a+b},0)/s.length):null,tasks:t,sat:sat}}
+function bars(vals,labels,w,h,desc){
+  var ns="http://www.w3.org/2000/svg",s=document.createElementNS(ns,"svg"),bw=w/vals.length;
+  s.setAttribute("viewBox","0 0 "+w+" "+h);s.setAttribute("role","img");s.setAttribute("aria-label",desc);s.style.width="100%";
+  function tx(x,y,c,t){var e=document.createElementNS(ns,"text");e.setAttribute("x",x);e.setAttribute("y",y);e.setAttribute("text-anchor","middle");e.setAttribute("font-size","10");e.setAttribute("fill",c);e.textContent=t;s.appendChild(e)}
+  vals.forEach(function(v,i){
+    var r=document.createElementNS(ns,"rect"),bh=v==null?2:Math.max(2,(h-34)*v/100);
+    r.setAttribute("x",i*bw+3);r.setAttribute("y",h-18-bh);r.setAttribute("width",bw-6);r.setAttribute("height",bh);r.setAttribute("rx",3);
+    r.setAttribute("fill",v==null?"var(--line)":"var(--accent)");s.appendChild(r);
+    tx(i*bw+bw/2,h-5,"var(--mute)",labels[i]);
+    if(v!=null)tx(i*bw+bw/2,h-21-bh,"var(--ink)",v+"");
+  });
+  return s;
+}
+function renderInsights(){
+  var b=$("insBody");b.textContent="";
+  var a=wk(sel),p=wk(addDays(sel,-7)),m=mk("p","insight");
+  if(a.avg==null)m.textContent="Add and tick a few tasks to start your trend.";
+  else if(p.avg==null)m.textContent="Last 7 days average "+a.avg+"% productivity. The 7 days before had no data to compare.";
+  else{var df=a.avg-p.avg;m.textContent="Productivity is "+(df>0?"up ":df<0?"down ":"level ")+(df?Math.abs(df)+" points ":"")+"compared with the 7 days before ("+p.avg+"% to "+a.avg+"%)."}
+  b.appendChild(m);
+  var t=mk("p",null,"Tasks completed: "+a.tasks+" in the last 7 days, "+p.tasks+" in the 7 days before. Satisfied days: "+a.sat+" of 7.");b.appendChild(t);
+  var g=mk("div","charts"),c1=mk("div"),c2=mk("div"),dv=[],dl=[],wv=[];
+  for(var i=13;i>=0;i--){var k=addDays(sel,-i);dv.push(sc(k));dl.push(String(parse(k).getDate()))}
+  for(var j=3;j>=0;j--)wv.push(wk(addDays(sel,-7*j)).avg);
+  c1.appendChild(mk("h3",null,"Daily productivity, last 14 days (%)"));c1.appendChild(bars(dv,dl,420,150,"Daily productivity for the last 14 days"));
+  c2.appendChild(mk("h3",null,"Weekly average (%)"));c2.appendChild(bars(wv,["3w ago","2w ago","Last","This"],200,150,"Weekly average productivity for the last 4 weeks"));
+  g.appendChild(c1);g.appendChild(c2);b.appendChild(g);
+}
+function render(){renderHead();renderCal();["must","can","dont"].forEach(renderList);renderRev();$("cmsg").textContent=""}
+
+[].forEach.call(document.querySelectorAll("form.add"),function(f){
+  f.onsubmit=function(e){e.preventDefault();var i=f.querySelector("input"),t=i.value.trim();if(!t)return;
+    day(sel)[f.dataset.k].push({t:t,d:false});i.value="";saveD();render();i.focus()};
+});
+$("good").oninput=function(e){day(sel).good=e.target.value;saveD()};
+$("learn").oninput=function(e){day(sel).learn=e.target.value;saveD()};
+$("fix").oninput=function(e){day(sel).fix=e.target.value;saveD()};
+function go(k){sel=k;var d=parse(k);view=new Date(d.getFullYear(),d.getMonth(),1);render()}
+$("prev").onclick=function(){go(addDays(sel,-1))};
+$("next").onclick=function(){go(addDays(sel,1))};
+$("today").onclick=function(){go(TODAY)};
+$("pm").onclick=function(){view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()};
+$("nm").onclick=function(){view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()};
+$("carry").onclick=function(){
+  var left=day(sel).must.filter(function(x){return !x.d}),nx=day(addDays(sel,1)),n=0;
+  left.forEach(function(x){if(!nx.must.some(function(y){return y.t===x.t})){nx.must.push({t:x.t,d:false});n++}});
+  saveD();renderCal();$("cmsg").textContent=n?n+" moved to the next day.":"Nothing to carry over.";
+};
+applyLook();render();
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+})();
+</script>
+</body>
+</html>
